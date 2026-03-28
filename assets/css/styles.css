@@ -1,0 +1,199 @@
+body{
+    
+    justify-content:center;
+    padding-top: 50px;
+    align-items: center;
+    background-color: rgba(9, 34, 49, 0.351);
+    font-family: 'Roboto', sans-serif;
+  }
+h1 {
+  color: rgba(148, 7, 7, 0.904) ;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+label {
+ 
+font:1rem'Fira Sans',
+sans-serif;
+
+}
+input,label {
+  flex-direction: column;
+  margin: 0.4rem 0;
+ display:block
+}
+
+label {
+  
+  font-family: sans-serif;
+  font-size: 1rem;
+  padding-right: 10px;
+}
+
+select {
+  font-size: 0.9rem;
+  padding: 2px 5px;
+}
+table, caption, th, td {
+
+  border: 2px solid rgb(26, 60, 73);
+    border-collapse: collapse;
+  
+  }
+  caption, th, td {
+  
+  padding: 8px;
+  }
+  
+option {
+  font-weight: bolder;
+  
+}
+
+.bold{
+  font-weight: bold ;
+}
+.italic{
+  font-style:italic;
+}
+
+.bouton{
+  display: block;
+  background-color: #719fee;
+  border-radius: 10px;
+  border: 4px double #1f69ec;
+  color: #ffffff;
+  text-align: center;
+  font-size: 20px;
+  padding: 10px;
+  width: 200px;
+  cursor: pointer;
+
+}
+p{
+  color:black
+}
+
+.topnav {
+  position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+  background-color: #333;
+  overflow: hidden;
+}
+
+.topnav a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.topnav a.active {
+  background-color: #04AA6D;
+  color: white;
+}
+
+.carousel-text {
+  text-align: right;
+  margin-top: 20px;
+  font-size: 16px;
+  color: black(0, 86%, 3%, 0);
+}
+
+.img{
+  position:absolute;
+}
+.carousel-caption h3 {
+  color: black !important;
+}
+.carousel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.carousel-caption {
+  text-align: right; /* Aligne tout le texte à droite */
+  right: 0; /* Aligne le texte à droite */
+  left: unset; /* Désactive l'alignement à gauche */
+  padding-right: 20px; /* Ajoute un peu de marge à droite */
+}
+
+
+th,
+td {
+  border: 2px solid rgb(160 160 160);
+  padding: 15 20px;
+}
+
+th[scope='col'] {
+  background-color: #505050;
+  color: #fff;
+}
+
+th[scope='row'] {
+  background-color: #d6ecd4;
+}
+
+td {
+  text-align: center;
+}
+
+tr:nth-of-type(even) {
+  background-color: #eee;
+}
+
+table {
+  border-collapse: collapse;
+  border: 2px solid rgb(140 140 140);
+  font-family: sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 3px;
+}
+<!-- CALENDRIER-->
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+table {
+  width: 80%;
+  margin: auto;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+td {
+  height: 50px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ccc;
+}

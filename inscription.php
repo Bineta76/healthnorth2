@@ -1,73 +1,77 @@
 <?php
-// Activer l'affichage des erreurs
 ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-
 error_reporting(E_ALL);
 
-// Démarrer la session
 session_start();
-include 'includes/header.php';
 
-// Configuration de la base de données
-$host = 'localhost';
-$db = 'labo';
-$user = 'root';
-$pass = '';
-$charset = 'utf8mb4';
-
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-$options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES   => false,
-];
+// ==================== BDD ====================
+$host = "mysql-loute.alwaysdata.net"; 
+$dbname = "loute_labo";
+$user = "loute_labo";
+$password = "loute210982";
 
 try {
-    $pdo = new PDO($dsn, $user, $pass, $options);
+    $pdo = new PDO(
+        "mysql:host=$host;dbname=$dbname;charset=utf8",
+        $user,
+        $password,
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    );
 } catch (PDOException $e) {
-    exit("❌ Erreur de connexion à la base de données : " . $e->getMessage());
+    exit("Erreur BDD : " . $e->getMessage());
 }
 
+// ==================== VARIABLES ====================
 $message = "";
+$type = "";
 
-// Traitement du formulaire
+// ==================== TRAITEMENT ====================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nom    = trim($_POST['nom'] ?? '');
-    $prenom = trim($_POST['prenom'] ?? '');
-    $email  = trim($_POST['email'] ?? '');
-    $mdp    = $_POST['mdp'] ?? '';
 
-    // Vérification des champs
+    $nom = trim($_POST['nom'] ?? '');
+    $prenom = trim($_POST['prenom'] ?? '');
+    $email = strtolower(trim($_POST['email'] ?? ''));
+    $mdp = $_POST['mdp'] ?? '';
+
     if (empty($nom) || empty($prenom) || empty($email) || empty($mdp)) {
-        $message = "❌ Tous les champs sont obligatoires.";
+        $message = "Tous les champs sont obligatoires.";
+        $type = "danger";
+
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $message = "❌ Adresse email invalide.";
+        $message = "Email invalide.";
+        $type = "danger";
+
+    } elseif (!preg_match('/^(?=.*[A-Z])(?=.*[0-9]).{8,}$/', $mdp)) {
+        $message = "Mot de passe trop faible (8 caractères, 1 majuscule, 1 chiffre).";
+        $type = "danger";
+
     } else {
         try {
-            // Vérifie si l'email existe déjà
+            // Vérifier si l'email existe déjà
             $stmt = $pdo->prepare("SELECT id FROM patient WHERE email = ?");
             $stmt->execute([$email]);
 
             if ($stmt->fetch()) {
-                $message = "❌ Un compte avec cet email existe déjà.";
+                $message = "Cet email existe déjà.";
+                $type = "danger";
             } else {
                 // Hash du mot de passe
                 $hash = password_hash($mdp, PASSWORD_DEFAULT);
 
                 // Insertion dans la base
-                $stmt = $pdo->prepare("
-                    INSERT INTO patient (nom, prenom, email, mot_de_passe) 
-                    VALUES (?, ?, ?, ?)
-                ");
+                $stmt = $pdo->prepare("INSERT INTO patient (nom, prenom, email, mot_de_passe) VALUES (?, ?, ?, ?)");
                 $stmt->execute([$nom, $prenom, $email, $hash]);
 
-                $message = "✅ Inscription réussie, redirection...";
-                header("Refresh:3; url=index.php");
-                exit;
+                $message = "Inscription réussie ! Vous pouvez maintenant vous connecter.";
+                $type = "success";
+
+                // Redirection après 3 secondes
+                header("refresh:3;url=connexion.php");
             }
+
         } catch (PDOException $e) {
-            $message = "❌ Erreur lors de l'inscription : " . $e->getMessage();
+            $message = "Erreur serveur, veuillez réessayer.";
+            $type = "danger";
         }
     }
 }
@@ -76,22 +80,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Inscription</title>
+<meta charset="UTF-8">
+<title>Inscription - Laboratoire</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Inscription</h1>
+<body class="bg-light">
 
-    <?php if (!empty($message)): ?>
-        <p><?= $message ?></p>
-    <?php endif; ?>
+<div class="container mt-5">
+<div class="card p-4 shadow">
 
-    <form method="post">
-        <input type="text" name="nom" placeholder="Nom" required><br>
-        <input type="text" name="prenom" placeholder="Prénom" required><br>
-        <input type="email" name="email" placeholder="Email" required><br>
-        <input type="password" name="mdp" placeholder="Mot de passe" required><br>
-        <button type="submit">S'inscrire</button>
-    </form>
+<h2 class="mb-4 text-center">Inscription Patient</h2>
+
+<?php if (!empty($message)): ?>
+<div class="alert alert-<?= $type ?>"><?= htmlspecialchars($message) ?></div>
+<?php endif; ?>
+
+<form method="POST">
+
+<div class="mb-3">
+<input type="text" name="nom" class="form-control" placeholder="Nom" required
+value="<?= $_POST['nom'] ?? '' ?>">
+</div>
+
+<div class="mb-3">
+<input type="text" name="prenom" class="form-control" placeholder="Prénom" required
+value="<?= $_POST['prenom'] ?? '' ?>">
+</div>
+
+<div class="mb-3">
+<input type="email" name="email" class="form-control" placeholder="Email" required
+value="<?= $_POST['email'] ?? '' ?>">
+</div>
+
+<div class="mb-3">
+<input type="password" name="mdp" class="form-control" placeholder="Mot de passe" required>
+<small class="text-muted">8 caractères, 1 majuscule, 1 chiffre</small>
+</div>
+
+<button class="btn btn-success w-100">S'inscrire</button>
+
+<p class="mt-3 text-center">
+Déjà inscrit ? <a href="connexion.php">Se connecter</a>
+</p>
+
+</form>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

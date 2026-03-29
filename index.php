@@ -1,4 +1,5 @@
 <?php
+
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
@@ -7,14 +8,14 @@ session_start();
 // ==================== BDD ====================
 $host = "mysql-loute.alwaysdata.net"; 
 $dbname = "loute_labo";
-$user = "loute_labo";
-$password = "loute210982";
+$dbUser = "loute_labo";
+$dbPassword = "loute210982";
 
 try {
     $pdo = new PDO(
         "mysql:host=$host;dbname=$dbname;charset=utf8",
-        $user,
-        $password,
+        $dbUser,
+        $dbPassword,
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
     );
 } catch (PDOException $e) {
@@ -34,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ===== INSCRIPTION =====
     if ($action === 'inscription') {
         $activeTab = 'inscription';
+
         $nom = trim($_POST['nom'] ?? '');
         $prenom = trim($_POST['prenom'] ?? '');
         $email = strtolower(trim($_POST['email'] ?? ''));
@@ -42,12 +44,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($nom) || empty($prenom) || empty($email) || empty($mdp)) {
             $message = "Tous les champs sont obligatoires.";
             $type = "danger";
+
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $message = "Email invalide.";
             $type = "danger";
+
         } elseif (!preg_match('/^(?=.*[A-Z])(?=.*[0-9]).{8,}$/', $mdp)) {
-            $message = "Mot de passe trop faible (8 caractères, 1 majuscule, 1 chiffre).";
+            $message = "Mot de passe trop faible.";
             $type = "danger";
+
         } else {
             $stmt = $pdo->prepare("SELECT id FROM patient WHERE email = ?");
             $stmt->execute([$email]);
@@ -55,12 +60,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($stmt->fetch()) {
                 $message = "Cet email existe déjà.";
                 $type = "danger";
+
             } else {
                 $hash = password_hash($mdp, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("INSERT INTO patient (nom, prenom, email, mot_de_passe) VALUES (?, ?, ?, ?)");
+
+                $stmt = $pdo->prepare(
+                    "INSERT INTO patient (nom, prenom, email, mot_de_passe)
+                     VALUES (?, ?, ?, ?)"
+                );
                 $stmt->execute([$nom, $prenom, $email, $hash]);
 
-                $message = "Inscription réussie ! Vous pouvez maintenant vous connecter.";
+                $message = "Inscription réussie !";
                 $type = "success";
                 $activeTab = 'connexion';
             }
@@ -70,22 +80,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ===== CONNEXION =====
     if ($action === 'connexion') {
         $activeTab = 'connexion';
+
         $email = strtolower(trim($_POST['email'] ?? ''));
         $mdp = $_POST['mdp'] ?? '';
 
         if (empty($email) || empty($mdp)) {
             $message = "Tous les champs sont obligatoires.";
             $type = "danger";
+
         } else {
-            $stmt = $pdo->prepare("SELECT id, nom, mot_de_passe FROM patient WHERE email = ?");
+            $stmt = $pdo->prepare(
+                "SELECT id, nom, mot_de_passe FROM patient WHERE email = ?"
+            );
             $stmt->execute([$email]);
-            $user = $stmt->fetch();
+            $utilisateur = $stmt->fetch();
 
-            if ($user && password_verify($mdp, $user['mot_de_passe'])) {
+            if ($utilisateur && password_verify($mdp, $utilisateur['mot_de_passe'])) {
+
                 session_regenerate_id(true);
-                $_SESSION['id_patient'] = $user['id'];
-                $_SESSION['utilisateur'] = $user['nom'];
 
+                $_SESSION['id_patient'] = $utilisateur['id'];
+                $_SESSION['utilisateur'] = $utilisateur['nom'];
+
+                // ✅ REDIRECTION
+                header("Location: accueil.php");
+                exit();
+
+            } else {
+                $message = "Email ou mot de passe incorrect.";
+                $type = "danger";
+            }
+        }
+    }
+}
+?>
      
 }
 ?>

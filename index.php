@@ -86,15 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['id_patient'] = $user['id'];
                 $_SESSION['utilisateur'] = $user['nom'];
 
-                // 🔥 REDIRECTION VERS DASHBOARD
-                header("Location: dashboard.php");
-                exit;
-            } else {
-                $message = "Email ou mot de passe incorrect.";
-                $type = "danger";
-            }
-        }
-    }
+     
 }
 ?>
 

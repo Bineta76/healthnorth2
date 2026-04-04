@@ -7,7 +7,7 @@ include 'includes/header.php';
         
   <p>
 
-      <center><img src="assets/images/labo.jpg " width="900px" heignt='500px'></center>
+      <center><img src="assets/labo.jpg " width="900px" heignt='500px'></center>
 
 
     </p>
